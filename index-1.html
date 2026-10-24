@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0b0b0d">
+<title>Scorpion TV | Paraguay</title>
+<style>
+:root{--bg:#09090b;--panel:#141418;--panel2:#1d1d23;--red:#ed1c24;--text:#f7f7f8;--muted:#a7a7b1;--line:#2b2b32}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
+header{position:sticky;top:0;z-index:5;background:rgba(9,9,11,.94);backdrop-filter:blur(12px);border-bottom:1px solid var(--line);padding:14px 16px}
+.top{max-width:1200px;margin:auto;display:flex;align-items:center;gap:12px}.logo{width:44px;height:44px;border-radius:13px;background:linear-gradient(145deg,#ff343b,#9c0008);display:grid;place-items:center;font-size:24px;box-shadow:0 5px 20px #ed1c2433}
+.brand{font-weight:900;font-size:20px;letter-spacing:.5px}.brand span{color:var(--red)}.subtitle{font-size:12px;color:var(--muted)}
+main{max-width:1200px;margin:auto;padding:18px 16px 40px}.hero{padding:20px;border:1px solid #3b171b;border-radius:20px;background:radial-gradient(ellipse at top right,#551116 0,transparent 55%),linear-gradient(135deg,#191014,#111114);margin-bottom:18px}
+.hero h1{margin:0 0 7px;font-size:clamp(24px,5vw,38px);line-height:1.1}.hero p{color:#c9c4c7;margin:0 0 16px;max-width:650px}
+.actions{display:flex;gap:9px;flex-wrap:wrap}.btn{border:1px solid var(--line);background:var(--panel2);color:white;padding:11px 14px;border-radius:11px;font-weight:700;cursor:pointer}.btn.primary{background:var(--red);border-color:var(--red)}.btn:disabled{opacity:.5;cursor:wait}
+.playerbox{background:#000;border:1px solid var(--line);border-radius:16px;overflow:hidden;margin-bottom:18px}.playerhead{padding:12px 14px;display:flex;justify-content:space-between;gap:10px;align-items:center;background:#121216}.live{font-size:11px;color:#fff;background:#d91c24;padding:4px 8px;border-radius:5px;font-weight:900;letter-spacing:.6px}
+video{display:block;width:100%;aspect-ratio:16/9;max-height:65vh;background:#000}.playerfoot{padding:12px 14px;color:var(--muted);font-size:13px;display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.tools{display:flex;gap:10px;flex-wrap:wrap;margin:16px 0}.search{flex:1;min-width:180px;background:var(--panel);border:1px solid var(--line);border-radius:11px;padding:12px;color:white;font-size:15px;outline:none}.search:focus{border-color:var(--red)}select{background:var(--panel);border:1px solid var(--line);color:white;border-radius:11px;padding:12px;max-width:100%}
+.status{color:var(--muted);font-size:13px;margin:10px 0 16px}.channels{display:grid;grid-template-columns:repeat(auto-fill,minmax(155px,1fr));gap:11px}.channel{min-width:0;text-align:left;border:1px solid var(--line);border-radius:14px;background:var(--panel);padding:13px;color:white;cursor:pointer;transition:.15s;display:flex;align-items:center;gap:11px}.channel:hover,.channel.active{border-color:var(--red);background:#211316}.channel.active{box-shadow:inset 0 0 0 1px var(--red)}.chlogo{width:43px;height:43px;flex:0 0 43px;border-radius:11px;background:#28282e;display:grid;place-items:center;font-weight:900;color:#ff555b;overflow:hidden}.chlogo img{width:100%;height:100%;object-fit:contain;background:white}.chname{font-size:13px;font-weight:750;line-height:1.3;overflow-wrap:anywhere}.chmeta{font-size:10px;color:var(--muted);margin-top:4px}
+.empty{padding:28px;text-align:center;border:1px dashed var(--line);border-radius:14px;color:var(--muted);grid-column:1/-1}.note{margin-top:20px;padding:13px 15px;background:#131317;border-radius:12px;color:var(--muted);font-size:12px;line-height:1.5}.error{color:#ff7378}
+footer{text-align:center;color:#777780;padding:20px;font-size:12px}
+@media(min-width:800px){.layout{display:grid;grid-template-columns:minmax(0,1.65fr) minmax(280px,1fr);gap:18px;align-items:start}.layout .playerbox{position:sticky;top:88px}.channels{grid-template-columns:repeat(auto-fill,minmax(165px,1fr))}}
+</style>
+</head>
+<body>
+<header><div class="top"><div class="logo">🦂</div><div><div class="brand">SCORPION <span>TV</span></div><div class="subtitle">Televisión en vivo · Paraguay</div></div></div></header>
+<main>
+<section class="hero">
+<h1>Tu televisión, en un solo lugar.</h1>
+<p>Explorá canales disponibles en la lista pública de Paraguay y reproducí las transmisiones compatibles.</p>
+<div class="actions"><button class="btn primary" id="reloadBtn">↻ Actualizar canales</button><button class="btn" id="favBtn">★ Mis favoritos</button><button class="btn" id="allBtn">Todos los canales</button></div>
+</section>
+<div class="layout">
+<section class="playerbox">
+<div class="playerhead"><strong id="nowTitle">Elegí un canal</strong><span class="live">EN VIVO</span></div>
+<video id="video" controls playsinline preload="none"></video>
+<div class="playerfoot"><span id="playerStatus">Listo para reproducir</span><button class="btn" id="fullBtn" style="padding:6px 10px">⛶ Pantalla completa</button></div>
+</section>
+<section>
+<div class="tools"><input class="search" id="search" placeholder="Buscar canal..." aria-label="Buscar canal"><select id="category" aria-label="Filtrar categoría"><option value="all">Todas las categorías</option><option value="news">Noticias</option><option value="sports">Deportes</option><option value="general">General / otros</option></select></div>
+<div class="status" id="status">Cargando lista de Paraguay…</div>
+<div class="channels" id="channels"><div class="empty">Cargando canales…</div></div>
+</section>
+</div>
+<div class="note"><strong>Nota:</strong> la lista es externa y puede cambiar. Algunos enlaces pueden estar fuera de servicio, restringidos geográficamente o no permitir reproducción en navegador. Esta app no aloja canales. Usá transmisiones que tengas derecho a ver. La reproducción HLS depende de la compatibilidad del navegador y del servidor de cada canal.</div>
+</main>
+<footer>SCORPION TV · Interfaz web independiente</footer>
+<script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+<script>
+(() => {
+  const PLAYLIST_URL = 'https://iptv-org.github.io/iptv/countries/py.m3u';
+  const $ = id => document.getElementById(id);
+  const video = $('video');
+  let channels = [], current = null, hls = null, favoritesOnly = false;
+  let favorites = new Set();
+  try { favorites = new Set(JSON.parse(localStorage.getItem('scorpion-tv-favs') || '[]')); } catch(e) {}
+  const esc = s => String(s || '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  function classify(ch) {
+    const g = (ch.group || '').toLowerCase(), n = ch.name.toLowerCase();
+    if (/news|noticia|inform|current affairs/.test(g+' '+n)) return 'news';
+    if (/sport|deport|futbol|football/.test(g+' '+n)) return 'sports';
+    return 'general';
+  }
+  function parseM3U(text) {
+    const lines = text.replace(/^\uFEFF/, '').split(/\r?\n/);
+    const out = []; let pending = null;
+    for (const raw of lines) {
+      const line = raw.trim(); if (!line) continue;
+      if (line.startsWith('#EXTINF')) {
+        const name = line.includes(',') ? line.slice(line.lastIndexOf(',') + 1).trim() : 'Canal sin nombre';
+        const attr = key => { const m = line.match(new RegExp('(?:^|\\\\s)' + key + '="([^"]*)"','i')); return m ? m[1] : ''; };
+        pending = {name: name || 'Canal sin nombre', logo: attr('tvg-logo'), group: attr('group-title'), id: attr('tvg-id')};
+      } else if (!line.startsWith('#') && pending) {
+        pending.url = line;
+        // La lista puede contener enlaces HLS .m3u8 o enlaces directos con parámetros.
+        pending.kind = /\.m3u8?(?:$|[?#])/i.test(line) ? ( /\.m3u8(?:$|[?#])/i.test(line) ? 'HLS M3U8' : 'M3U' ) : 'Stream';
+        pending.category = classify(pending);
+        out.push(pending); pending = null;
+      }
+    }
+    return out;
+  }
+  function stopPlayback() {
+    if (hls) { hls.destroy(); hls = null; }
+    video.pause(); video.removeAttribute('src'); video.load();
+  }
+  async function play(ch) {
+    current = ch; stopPlayback();
+    $('nowTitle').textContent = ch.name;
+    $('playerStatus').textContent = 'Conectando con la transmisión…';
+    document.querySelectorAll('.channel').forEach(el => el.classList.toggle('active', el.dataset.url === ch.url));
+    try {
+      if (window.Hls && Hls.isSupported()) {
+        hls = new Hls({enableWorker:true, lowLatencyMode:true});
+        hls.loadSource(ch.url); hls.attachMedia(video);
+        hls.on(Hls.Events.MANIFEST_PARSED, () => { $('playerStatus').textContent = 'Transmisión lista'; video.play().catch(() => {$('playerStatus').textContent='Tocá reproducir para iniciar';}); });
+        hls.on(Hls.Events.ERROR, (_, data) => { if (data.fatal) $('playerStatus').textContent = 'No se pudo reproducir. Probá otro canal.'; });
+      } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+        video.src = ch.url;
+        video.addEventListener('loadedmetadata', () => video.play().catch(()=>{}), {once:true});
+        $('playerStatus').textContent = 'Transmisión cargada';
+      } else {
+        $('playerStatus').textContent = 'Este navegador no admite HLS directamente.';
+      }
+    } catch (e) { $('playerStatus').textContent = 'Error al abrir el canal.'; }
+    render();
+  }
+  function render() {
+    const query = $('search').value.trim().toLowerCase(), cat = $('category').value;
+    const list = channels.filter(ch => (!favoritesOnly || favorites.has(ch.url)) &&
+      (!query || ch.name.toLowerCase().includes(query) || (ch.group||'').toLowerCase().includes(query)) &&
+      (cat === 'all' || ch.category === cat));
+    $('status').textContent = `${list.length} canal(es)${favoritesOnly ? ' en favoritos' : ''}`;
+    const root = $('channels');
+    if (!list.length) { root.innerHTML = '<div class="empty">No se encontraron canales. Probá otra búsqueda o actualizá la lista.</div>'; return; }
+    root.innerHTML = list.map((ch, i) => `<button class="channel ${current && current.url===ch.url?'active':''}" data-url="${esc(ch.url)}" aria-label="Reproducir ${esc(ch.name)}">
+      <div class="chlogo">${ch.logo ? `<img src="${esc(ch.logo)}" alt="" loading="lazy" onerror="this.remove();this.parentElement.textContent='TV'">` : 'TV'}</div>
+      <div style="min-width:0;flex:1"><div class="chname">${esc(ch.name)}</div><div class="chmeta">${esc(ch.group || ch.kind || 'Canal')}</div></div>
+      <span title="${favorites.has(ch.url)?'Quitar favorito':'Agregar favorito'}" class="star" data-fav="${esc(ch.url)}" style="font-size:18px;color:${favorites.has(ch.url)?'#ffcf4a':'#777'}">★</span>
+    </button>`).join('');
+    root.querySelectorAll('.channel').forEach(el => {
+      el.addEventListener('click', ev => {
+        const fav = ev.target.closest('[data-fav]');
+        if (fav) {
+          ev.stopPropagation(); const url = fav.dataset.fav;
+          favorites.has(url) ? favorites.delete(url) : favorites.add(url);
+          try { localStorage.setItem('scorpion-tv-favs', JSON.stringify([...favorites])); } catch(e) {}
+          render(); return;
+        }
+        const ch = channels.find(c => c.url === el.dataset.url); if (ch) play(ch);
+      });
+    });
+  }
+  async function loadList() {
+    $('reloadBtn').disabled = true; $('status').textContent = 'Descargando lista M3U de Paraguay…';
+    $('channels').innerHTML = '<div class="empty">Cargando canales…</div>';
+    try {
+      const response = await fetch(PLAYLIST_URL + '?_=' + Date.now(), {cache:'no-store'});
+      if (!response.ok) throw new Error('HTTP ' + response.status);
+      const text = await response.text();
+      const parsed = parseM3U(text);
+      if (!parsed.length) throw new Error('No se encontraron canales en el archivo.');
+      channels = parsed;
+      $('status').textContent = `Se cargaron ${channels.length} canales.`;
+      render();
+    } catch (err) {
+      $('status').innerHTML = '<span class="error">No se pudo cargar la lista. Revisá tu conexión e intentá actualizar.</span>';
+      $('channels').innerHTML = `<div class="empty">La lista externa no respondió o el navegador bloqueó la solicitud.<br><br><button class="btn primary" onclick="location.reload()">Reintentar</button><br><br>También podés abrir la lista original directamente.</div>`;
+    } finally { $('reloadBtn').disabled = false; }
+  }
+  $('search').addEventListener('input', render);
+  $('category').addEventListener('change', render);
+  $('reloadBtn').addEventListener('click', loadList);
+  $('favBtn').addEventListener('click', () => { favoritesOnly = true; render(); });
+  $('allBtn').addEventListener('click', () => { favoritesOnly = false; $('search').value=''; $('category').value='all'; render(); });
+  $('fullBtn').addEventListener('click', () => { if (video.requestFullscreen) video.requestFullscreen(); else if (video.webkitEnterFullscreen) video.webkitEnterFullscreen(); });
+  video.addEventListener('playing', () => $('playerStatus').textContent = 'Reproduciendo en vivo');
+  video.addEventListener('error', () => { if (current) $('playerStatus').textContent = 'Error de reproducción. El enlace puede estar caído o no ser compatible.'; });
+  loadList();
+})();
+</script>
+</body>
+</html>
